@@ -10,27 +10,16 @@ const port = process.env.PORT || 4000;  // use env var or default to 4000
 
 const da = require("./data-access"); //import data-access.js file 
 
+const checkkey = require("./checkapikey.js")
+
 // adds bodyparder 
 app.use(bodyParser.json());
 
 // Set the static directory to serve files from
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Check for API Key
-function checkkey(req, res, next) {
-  const clientapikey = req.header('x-api-key');
-  const serverapikey = process.env.API_KEY;
 
-  if (!clientapikey) {
-    return res.status(401).json({ message: "Key missing" });
-  }
 
-  if (clientapikey !== serverapikey) {
-    return res.status(403).json({ message: " Invalid Key" });
-  }
-
-  next();
-}
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
