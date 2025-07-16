@@ -1,4 +1,6 @@
 // server.js file
+require("dotenv").config();
+
 const express = require('express');
 const path = require('path');  // for handling file paths
 const bodyParser = require('body-parser');
@@ -14,11 +16,27 @@ app.use(bodyParser.json());
 // Set the static directory to serve files from
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Check for API Key
+function checkkey(req, res, next) {
+  const clientapikey = req.header('x-api-key');
+  const serverapikey = process.env.API_KEY;
+
+  if (!clientapikey) {
+    return res.status(401).json({ message: "Key missing" });
+  }
+
+  if (clientapikey !== serverapikey) {
+    return res.status(403).json({ message: " Invalid Key" });
+  }
+
+  next();
+}
+
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
 
-app.get("/customers", async (req, res) => {
+app.get("/customers", checkkey, async (req, res) => {
      const [cust, err] = await da.getCustomers();
      if(cust){
          res.send(cust);
